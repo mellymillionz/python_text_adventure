@@ -171,56 +171,27 @@ def do_west(self, arg):
 
 ## Examine Items
 
-def look(self, arg):
-
-    """Look at an item, direction, or the area:"""
-    """look - display the current area's description"""
-    """look <item> - display the description of an item on the ground or in your inventory"""
-    global worldLoc
-
-    lookingAt = arg.lower()
-    if lookingAt == '':
-        # "look" will re-print the area description
-        currentLocation(location)
-        return
-
-    if lookingAt == 'exits':
-        for direction in (NORTH, SOUTH, EAST, WEST):
-            if direction in worldLoc[location]:
-                print('%s: %s' % (direction.title(), worldLoc[location][direction]))
-        return
-
-    if lookingAt in ('north', 'west', 'east', 'south', 'up', 'down', 'n', 'w', 'e', 's', 'u', 'd'):
-        if lookingAt.startswith('n') and NORTH in worldloc[location]:
-            print(worldloc[location][NORTH])
-        elif lookingAt.startswith('w') and WEST in worldloc[location]:
-            print(worldloc[location][WEST])
-        elif lookingAt.startswith('e') and EAST in worldloc[location]:
-            print(worldloc[location][EAST])
-        elif lookingAt.startswith('s') and SOUTH in worldloc[location]:
-            print(worldloc[location][SOUTH])
-        else:
-            print('You cannot go there.')
-        return
 
 ## TEMPORARY CODE for testing
-# while True:
-#     currentLocation(location)
-#     response = input()
-#     if response == 'quit':
-#         break
-#     if response in (NORTH, SOUTH, EAST, WEST, UP, DOWN):
-#         moveDirection(response)
+while True:
+    currentLocation(location)
+    response = input()
+    if response == 'quit':
+        break
+    if response in (NORTH, SOUTH, EAST, WEST, UP, DOWN):
+        moveDirection(response)
+    if response == 'ITEMS':
+        print ()
 
 #start the game
-if __name__ == '__main__':
-    print('Text Adventure Demo!')
-    print('====================')
-    print()
-    print('(Type "HELLO COMPUTER" for commands.)')
-    print()
-    currentLocation(location)
-    AdventureCmd().cmdloop()
-    print('Thanks for playing!')
+# if __name__ == '__main__':
+#     print('Text Adventure Demo!')
+#     print('====================')
+#     print()
+#     print('(Type "HELLO COMPUTER" for commands.)')
+#     print()
+#     currentLocation(location)
+#     AdventureCmd().cmdloop()
+#     print('Thanks for playing!')
 
 
