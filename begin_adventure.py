@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import cmd, sys, textwrap
+import cmd, textwrap
+# import sys
 from global_variables import location
 
 # https://raw.githubusercontent.com/asweigart/textadventuredemo/master/snippets/basiccmdloop.py
@@ -28,45 +29,64 @@ ITEMS = 'ITEMS'
 SCREEN_WIDTH = 80
 
 location = 'Abandoned Town Square' # start in town square
-inventory = ['README Note', 'Small White Stone'] # start with blank inventory
+inventory = ['README Note'] # start with blank inventory
 showFullExits = True
 
 
 print('Welcome to THE GAME.')
+print()
 
 #World Dictionaries
-worldloc = {
-    'Abandoned Town Square': {
-        'DESC': 'Light rain falls on rough pavement. Most shops are shuttered. A small stray pig runs by and disappears down a damp alley.',
-        'NORTH': 'Main Street',
+
+worldloc = {'Abandoned Town Square': {
+        'DESC': 'A light rain is falling. The square is deserted and the shops are shuttered. In the middle of the square is a large panel with a rusty lever.',
+        'NORTH': 'Rusty Panel',
         'EAST': 'Damp Alley',
         'SOUTH': 'Open Sewer Gate',
-        'WEST': 'Broken Shop Window',
-        'ITEMS': ['Welcome Sign', 'Fountain']
+        'WEST': 'Broken Window',
+        'ITEMS': ['tablet']
         },
     'Damp Alley': {
-        'DESC': 'Small hoof prints in the mud round a bend ahead and disappear under a fence.',
-        'WEST': 'Thief Guild',
-        'EAST': 'Bakery',
+        'DESC': 'Water droplets fall from eaves high above and dark green moss crawls up the stone walls. Small footprints in the mud round a bend ahead and disappear under a fence.',
+        'WEST': 'Abandoned Town Square',
+        'EAST': 'Wooden Door with poster',
+        'SOUTH': 'Hole Under Fence',
+        'ITEMS': ['footprints', 'poster']
+        },
+    'Rusty Panel': {
+        'DESC': 'A rusted octagonal panel with a single switch at the center.',
+        'WEST': 'Broken Fence',
+        'EAST': 'Wooden Door with poster',
         'SOUTH': 'Abandoned Town Square',
-        'ITEMS': ['Pig']
-        }
+        'ITEMS': ['lever']}
 }
 
 worldItems = {
-    'Welcome Sign': {
-        'ITEMDESC': 'A welcome sign stands here.',
-        'SHORTDESC': 'a welcome sign',
-        'LONGDESC': 'The welcome sign reads, "Welcome to this text adventure demo. You can type "help" for a list of commands to use.',
+    'tablet': {
+        'ITEMDESC': 'You have a small tablet in your hand.',
+        'SHORTDESC': 'a tablet',
+        'LONGDESC': 'When the keypad is pressed, a note appears on the screen. It reads: Stranger - I worry you have arrive too late. This world is not well, but I have attempted to provide some assistance to you with this device. If you are stuck, type "HELLO COMPUTER" and a list of commands will appear. Good luck.',
         'TAKEABLE': False,
-        'DESCWORDS': ['welcome', 'sign']},
-    'Fountain': {
-        'ITEMDESC': 'A bubbling fountain of green water.',
-        'SHORTDESC': 'a fountain',
-        'LONGDESC': 'The water in the fountain is a bright green color. It is full of bubbles, overflowing like a bubble bath.',
+        'DESCWORDS': ['keypad', 'note']},
+     'poster': {
+        'ITEMDESC': 'A poster nailed onto the wooden door.',
+        'SHORTDESC': 'a poster',
+        'LONGDESC': 'No Trespassing. This building is now property of the S.R.L.',
         'TAKEABLE': False,
-        'DESCWORDS': ['fountain']},
-    'Pig': {
+        'DESCWORDS': ['poster']},
+     'lever': {
+        'ITEMDESC': 'A t-shaped lever protrudes from the panel.',
+        'SHORTDESC': 'a lever',
+        'LONGDESC': 'You move the lever. Its grates under pressure, but you hear a whirring sound. A spherical hologram appears above the terminal. A face womans appears, accompanied by cheering and clapping of thousands of people. The sound echos strangely through the abandoned square.',
+        'TAKEABLE': False,
+        'DESCWORDS': ['poster']},
+    'footprints': {
+        'ITEMDESC': 'Tiny cloved hoofprints in the mud.',
+        'SHORTDESC': 'hoofprints',
+        'LONGDESC': 'They do not look like any animal you recognize. The creature seems to have been running quickly. They dissapear beneath the fence',
+        'TAKEABLE': False,
+        'DESCWORDS': ['foot', 'prints']},
+    'pig': {
         'ITEMDESC': 'A tiny pig peers out from under the fence.',
         'SHORTDESC': 'a pig',
         'LONGDESC': 'His eyes are full of knowledge and understanding. He becons you to follow',
@@ -123,7 +143,9 @@ def currentLocation(loc):
         print('Exits: %s' % ' '.join(exits))
     
 def moveDirection(direction):
-    """Changes global location"""
+    """Changes the players location"""
+    global location
+
     if direction in worldloc[location]:
         print(f"You move {direction}.")
         location = worldloc[location][direction]
@@ -131,22 +153,74 @@ def moveDirection(direction):
     else:
         print("You cannot move in that direction.")
 
+def do_north(self, arg):
+        """Go to the area to the north, if possible."""
+        moveDirection('north')
+
+def do_south(self, arg):
+        """Go to the area to the south, if possible."""
+        moveDirection('south')
+
+def do_east(self, arg):
+        """Go to the area to the east, if possible."""
+        moveDirection('east')
+
+def do_west(self, arg):
+        """Go to the area to the west, if possible."""
+        moveDirection('west')
+
+## Examine Items
+
+def look(self, arg):
+
+    """Look at an item, direction, or the area:"""
+    """look - display the current area's description"""
+    """look <item> - display the description of an item on the ground or in your inventory"""
+    global worldLoc
+
+    lookingAt = arg.lower()
+    if lookingAt == '':
+        # "look" will re-print the area description
+        currentLocation(location)
+        return
+
+    if lookingAt == 'exits':
+        for direction in (NORTH, SOUTH, EAST, WEST):
+            if direction in worldLoc[location]:
+                print('%s: %s' % (direction.title(), worldLoc[location][direction]))
+        return
+
+    if lookingAt in ('north', 'west', 'east', 'south', 'up', 'down', 'n', 'w', 'e', 's', 'u', 'd'):
+        if lookingAt.startswith('n') and NORTH in worldloc[location]:
+            print(worldloc[location][NORTH])
+        elif lookingAt.startswith('w') and WEST in worldloc[location]:
+            print(worldloc[location][WEST])
+        elif lookingAt.startswith('e') and EAST in worldloc[location]:
+            print(worldloc[location][EAST])
+        elif lookingAt.startswith('s') and SOUTH in worldloc[location]:
+            print(worldloc[location][SOUTH])
+        else:
+            print('You cannot go there.')
+        return
+
+## TEMPORARY CODE for testing
+# while True:
+#     currentLocation(location)
+#     response = input()
+#     if response == 'quit':
+#         break
+#     if response in (NORTH, SOUTH, EAST, WEST, UP, DOWN):
+#         moveDirection(response)
+
 #start the game
 if __name__ == '__main__':
     print('Text Adventure Demo!')
     print('====================')
     print()
-    print('(Type "help" for commands.)')
+    print('(Type "HELLO COMPUTER" for commands.)')
     print()
     currentLocation(location)
     AdventureCmd().cmdloop()
     print('Thanks for playing!')
 
-## TEMPORARY CODE for testing
-while True:
-    currentLocation(location)
-    response = input()
-    if response == 'quit':
-        break
-    if response in (NORTH, SOUTH, EAST, WEST, UP, DOWN):
-        moveDirection(response)
+
